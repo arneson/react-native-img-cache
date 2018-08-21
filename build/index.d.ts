@@ -1,3 +1,4 @@
+/// <reference types="react" />
 import { Component } from "react";
 import { ImageProperties, ImageURISource } from "react-native";
 export interface CachedImageURISource extends ImageURISource {
@@ -12,7 +13,7 @@ export declare type CacheEntry = {
 };
 export declare type CacheHandler = (path: string, entry: CacheEntry) => void;
 export declare class ImageCache {
-    private getPath;
+    private getPath(uri, immutable?);
     private static instance;
     private constructor();
     static get(): ImageCache;
@@ -22,9 +23,9 @@ export declare class ImageCache {
     dispose(uri: string, handler: CacheHandler): void;
     bust(uri: string): void;
     cancel(uri: string): void;
-    private download;
-    private get;
-    private notify;
+    private download(cache);
+    private get(uri);
+    private notify(uri, entry);
 }
 export interface CachedImageProps extends ImageProperties {
     mutable?: boolean;
@@ -38,10 +39,10 @@ export interface CachedImageState {
 export declare abstract class BaseCachedImage<P extends CachedImageProps> extends Component<P, CachedImageState> {
     private uri;
     private handler;
-    private dispose;
-    private observe;
+    private dispose();
+    private observe(source, mutable);
     protected getProps(): any;
-    private checkSource;
+    private checkSource(source);
     componentWillMount(): void;
     componentWillReceiveProps(nextProps: P): void;
     componentWillUnmount(): void;

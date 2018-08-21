@@ -2,22 +2,46 @@ import React, { Component } from "react";
 import { Image, ImageBackground, Platform } from "react-native";
 import fs from "react-native-fs";
 const SHA1 = require("crypto-js/sha1");
-const s4 = () => Math.floor((1 + Math.random()) * 0x10000).toString(16).substring(1);
+const s4 = () => Math.floor((1 + Math.random()) * 0x10000)
+    .toString(16)
+    .substring(1);
 const BASE_DIR = fs.CachesDirectoryPath + "/react-native-img-cache";
 const FILE_PREFIX = Platform.OS === "ios" ? "" : "file://";
 export class ImageCache {
     constructor() {
         this.cache = {};
+        fs.exists(BASE_DIR).then((exists) => {
+            if (!exists) {
+                fs.mkdir(BASE_DIR);
+            }
+        });
     }
     getPath(uri, immutable) {
         let path = uri.substring(uri.lastIndexOf("/"));
-        path = path.indexOf("?") === -1 ? path : path.substring(path.lastIndexOf("."), path.indexOf("?"));
+        path =
+            path.indexOf("?") === -1
+                ? path
+                : path.substring(path.lastIndexOf("."), path.indexOf("?"));
         const ext = path.indexOf(".") === -1 ? ".jpg" : path.substring(path.indexOf("."));
         if (immutable === true) {
             return BASE_DIR + "/" + SHA1(uri) + ext;
         }
         else {
-            return BASE_DIR + "/" + s4() + s4() + "-" + s4() + "-" + s4() + "-" + s4() + "-" + s4() + s4() + s4() + ext;
+            return (BASE_DIR +
+                "/" +
+                s4() +
+                s4() +
+                "-" +
+                s4() +
+                "-" +
+                s4() +
+                "-" +
+                s4() +
+                "-" +
+                s4() +
+                s4() +
+                s4() +
+                ext);
         }
     }
     static get() {
@@ -78,11 +102,13 @@ export class ImageCache {
                 fromUrl: uri,
                 toFile: path,
                 headers: Object.assign({ method }, (source.headers || {}))
-            })).promise.then(() => {
+            })).promise
+                .then(() => {
                 cache.task = null;
                 cache.path = path;
                 this.notify(uri, cache);
-            }).catch(() => {
+            })
+                .catch(() => {
                 cache.task = null;
                 // Parts of the image may have been downloaded already, (see https://github.com/wkh237/react-native-fetch-blob/issues/331)
                 fs.unlink(path);
@@ -136,7 +162,9 @@ export class BaseCachedImage extends Component {
         const props = {};
         Object.keys(this.props).forEach(prop => {
             if (prop === "source" && this.props.source.uri) {
-                props["source"] = this.state.path ? { uri: FILE_PREFIX + this.state.path } : {};
+                props["source"] = this.state.path
+                    ? { uri: FILE_PREFIX + this.state.path }
+                    : {};
             }
             else if (["mutable", "component"].indexOf(prop) === -1) {
                 props[prop] = this.props[prop];
@@ -156,14 +184,14 @@ export class BaseCachedImage extends Component {
         const { mutable } = this.props;
         const source = this.checkSource(this.props.source);
         this.setState({ path: undefined });
-        if (typeof (source) !== "number" && source.uri) {
+        if (typeof source !== "number" && source.uri) {
             this.observe(source, mutable === true);
         }
     }
     componentWillReceiveProps(nextProps) {
         const { mutable } = nextProps;
         const source = this.checkSource(nextProps.source);
-        if (typeof (source) !== "number" && source.uri) {
+        if (typeof source !== "number" && source.uri) {
             this.observe(source, mutable === true);
         }
     }
